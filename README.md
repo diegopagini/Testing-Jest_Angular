@@ -24,7 +24,6 @@
 ```javascript
 module.exports = {
   preset: "jest-preset-angular",
-  globalSetup: "jest-preset-angular/global-setup",
   collectCoverage: true,
   coverageDirectory: "coverage/jest-app",
 };
@@ -33,5 +32,7 @@ module.exports = {
 ### package.json
 
 ```json
-    "test": "jest"
+  "test": "jest",
+  "test-coverage": "jest --coverage",
+  "test-watch": "jest --watchAll"
 ```
