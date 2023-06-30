@@ -13,10 +13,10 @@
         />
       </div>
       <div class="card-body">
+        <!-- <p class="card-text alignCenter" style="margin-bottom: 2rem;">{{book.description}}</p> -->
         <p class="card-text alignCenter" style="margin-bottom: 2rem">
-          {{ book.description }}
+          {{ book.description | reduceText : 15 }}
         </p>
-        <!-- <p class="card-text alignCenter" style="margin-bottom: 2rem;">{{book.description | reduceText:15}}</p> -->
         <div class="divPrice">
           <span>{{ book.price }}€</span>
         </div>

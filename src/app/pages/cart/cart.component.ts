@@ -23,14 +23,15 @@ export class CartComponent implements OnInit {
   public getTotalPrice(listCartBook: Book[]): number {
     let totalPrice = 0;
     listCartBook.forEach((book: Book) => {
-      totalPrice += book.amount * book.price;
+      totalPrice += (book.amount as any) * (book as any).price;
     });
     return totalPrice;
   }
 
   public onInputNumberChange(action: string, book: Book): void {
-    const amount = action === 'plus' ? book.amount + 1 : book.amount - 1;
-    book.amount = Number(amount);
+    const amount =
+      action === 'plus' ? (book.amount as any) + 1 : (book.amount as any) - 1;
+    (book.amount as any) = Number(amount);
     this.listCartBook = this._bookService.updateAmountBook(book);
     this.totalPrice = this.getTotalPrice(this.listCartBook);
   }

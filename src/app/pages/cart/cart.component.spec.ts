@@ -1,59 +1,171 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import {
+  CUSTOM_ELEMENTS_SCHEMA,
+  DebugElement,
+  NO_ERRORS_SCHEMA,
+} from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Book } from 'src/app/models/book.model';
-import { BookService } from 'src/app/services/book.service';
+import { By } from '@angular/platform-browser';
 
+import { Book } from '../../models/book.model';
+import { BookService } from '../../services/book.service';
 import { CartComponent } from './cart.component';
 
-const bookList: Book[] = [
+const listBook: Book[] = [
   {
-    id: 'test',
-    name: 'test',
-    author: 'test',
-    isbn: 'test',
-    description: 'test',
-    photoUrl: 'test',
-    price: 10,
+    name: '',
+    author: '',
+    isbn: '',
+    price: 15,
     amount: 2,
   },
   {
-    id: 'test1',
-    name: 'test1',
-    author: 'test1',
-    isbn: 'test1',
-    description: 'test1',
-    photoUrl: 'test1',
-    price: 15,
-    amount: 3,
+    name: '',
+    author: '',
+    isbn: '',
+    price: 20,
+    amount: 1,
+  },
+  {
+    name: '',
+    author: '',
+    isbn: '',
+    price: 8,
+    amount: 7,
   },
 ];
 
-describe('CartComponent', () => {
+describe('Cart component', () => {
   let component: CartComponent;
   let fixture: ComponentFixture<CartComponent>;
+  let service: BookService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CartComponent],
       imports: [HttpClientTestingModule],
+      declarations: [CartComponent],
       providers: [BookService],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CartComponent); // To create the component.
-    component = fixture.componentInstance; // To instanciate the component.
-    fixture.detectChanges(); // To trigger the change detection cycle for the component.
+    fixture = TestBed.createComponent(CartComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    service = fixture.debugElement.injector.get(BookService);
+    jest.spyOn(service, 'getBooksFromCart').mockImplementation(() => listBook);
   });
 
-  it('should create the CartComponent', () => {
+  afterEach(() => {
+    fixture.destroy();
+    jest.resetAllMocks();
+  });
+
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('getTotalPrice should retruns an amount', () => {
-    const result = component.getTotalPrice(bookList);
-    expect(result).toBeGreaterThan(0);
+  // it('should create', inject([CartComponent], (component2: CartComponent) => {
+  //     expect(component2).toBeTruthy();
+  // }));
+
+  it('getTotalPrice returns an amaunt', () => {
+    const totalPrice = component.getTotalPrice(listBook);
+    expect(totalPrice).toBeGreaterThan(0);
+    // expect(totalPrice).not.toBe(0);
+    // expect(totalPrice).not.toBeNull();
+  });
+
+  it('onInputNumberChange increments correctly', () => {
+    const action = 'plus';
+    const book: Book = {
+      name: '',
+      author: '',
+      isbn: '',
+      price: 15,
+      amount: 2,
+    };
+
+    const spy1 = jest
+      .spyOn(service, 'updateAmountBook')
+      .mockImplementation(() => null);
+    const spy2 = jest
+      .spyOn(component, 'getTotalPrice')
+      .mockImplementation(() => null);
+    expect(book.amount).toBe(2);
+    component.onInputNumberChange(action, book);
+    expect(book.amount).toBe(3);
+
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy2).toHaveBeenCalledTimes(1);
+  });
+
+  it('onInputNumberChange decrements correctly', () => {
+    const action = 'minus';
+    const book: Book = {
+      name: '',
+      author: '',
+      isbn: '',
+      price: 15,
+      amount: 2,
+    };
+
+    const spy1 = jest
+      .spyOn(service, 'updateAmountBook')
+      .mockImplementation(() => null);
+    const spy2 = jest
+      .spyOn(component, 'getTotalPrice')
+      .mockImplementation(() => null);
+    expect(book.amount).toBe(2);
+    component.onInputNumberChange(action, book);
+    expect(book.amount).toBe(1);
+
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy2).toHaveBeenCalledTimes(1);
+  });
+
+  it('onClearBooks works correctly', () => {
+    const spy1 = jest
+      .spyOn(service, 'removeBooksFromCart')
+      .mockImplementation(() => null);
+    const spy2 = jest.spyOn(component as any, '_clearListCartBook');
+    component.listCartBook = listBook;
+    component.onClearBooks();
+    expect(component.listCartBook.length).toBe(0);
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy2).toHaveBeenCalledTimes(1);
+  });
+
+  it('_clearListCartBook works correctly', () => {
+    const spy1 = jest
+      .spyOn(service, 'removeBooksFromCart')
+      .mockImplementation(() => null);
+    component.listCartBook = listBook;
+    component['_clearListCartBook']();
+    expect(component.listCartBook.length).toBe(0);
+    expect(spy1).toHaveBeenCalledTimes(1);
+  });
+
+  it('The title "The cart is empty" is not displayed when there is a list', () => {
+    component.listCartBook = listBook;
+    fixture.detectChanges();
+    const debugElement: DebugElement = fixture.debugElement.query(
+      By.css('#titleCartEmpty')
+    );
+    expect(debugElement).toBeFalsy();
+  });
+
+  it('The title "The cart is empty" is displayed correctly when the list is empty', () => {
+    component.listCartBook = [];
+    fixture.detectChanges();
+    const debugElement: DebugElement = fixture.debugElement.query(
+      By.css('#titleCartEmpty')
+    );
+    expect(debugElement).toBeTruthy();
+    if (debugElement) {
+      const element: HTMLElement = debugElement.nativeElement;
+      expect(element.innerHTML).toContain('The cart is empty');
+    }
   });
 });

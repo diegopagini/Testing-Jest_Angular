@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
 import swal from 'sweetalert2';
 
+import { environment } from '../../environments/environment.prod';
 import { Book } from '../models/book.model';
 
 @Injectable()
@@ -16,9 +16,7 @@ export class BookService {
   }
 
   public getBooksFromCart(): Book[] {
-    let listBook: Book[] = JSON.parse(
-      localStorage.getItem('listCartBook') as any
-    );
+    let listBook: Book[] = JSON.parse(localStorage.getItem('listCartBook'));
     if (listBook === null) {
       listBook = [];
     }
@@ -26,13 +24,11 @@ export class BookService {
   }
 
   public removeBooksFromCart(): void {
-    localStorage.setItem('listCartBook', null as any);
+    localStorage.setItem('listCartBook', null);
   }
 
   public addBookToCart(book: Book) {
-    let listBook: Book[] = JSON.parse(
-      localStorage.getItem('listCartBook') as any
-    );
+    let listBook: Book[] = JSON.parse(localStorage.getItem('listCartBook'));
     if (listBook === null) {
       // Create a list with the book
       book.amount = 1;
@@ -43,7 +39,7 @@ export class BookService {
       });
       if (index !== -1) {
         // Update the quantity in the existing book
-        (listBook[index] as any).amount++;
+        listBook[index].amount++;
       } else {
         book.amount = 1;
         listBook.push(book);
